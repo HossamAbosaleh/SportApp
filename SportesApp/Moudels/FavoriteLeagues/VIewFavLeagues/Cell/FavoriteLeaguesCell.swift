@@ -17,6 +17,11 @@ class FavoriteLeaguesCell: UITableViewCell {
     
     @IBOutlet weak var nameSportFavoriteLeagueLabel: UILabel!
     
+    
+    @IBOutlet weak var UnFavBtnOutlet: UIButton!
+    
+    
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -34,12 +39,12 @@ class FavoriteLeaguesCell: UITableViewCell {
     }
     
     
-    @IBAction func removeFromFavorite(_ sender: Any) {
+    @IBAction func removeFromFavorite(_ sender: UIButton) {
         
         print("you Remove this League")
     }
     
-    @IBAction func goFavoriteLeagueYoutubeBtn(_ sender: Any) {
+    @IBAction func goFavoriteLeagueYoutubeBtn(_ sender: UIButton) {
         
         print("Go You Tube")
     }

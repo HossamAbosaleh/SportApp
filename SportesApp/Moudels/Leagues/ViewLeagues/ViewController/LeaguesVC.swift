@@ -36,14 +36,14 @@ class LeaguesVC: UIViewController {
     var arrOfNameLeague = [String]()
     
     var strSport: String?
-                   
+    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     let leaguesViewModel = LeaguesViewModel()
     
     var passDelegate: PassFavLeague?
     
-    let idUpComming = ["4328","4328","4328","4328","4328","4328","4328","4328","4328","4328"]
+    var btnSelected = true
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -67,7 +67,6 @@ class LeaguesVC: UIViewController {
                 
                 self.arrayOfLeagueByStrSport = leagueByStrSport
                 
-           //    self.leaguesViewModel.getNameLeague(appDelegate: self.appDelegate, arr: self.arrayOfLeagueByStrSport)
                 
                 DispatchQueue.main.async {
                     self.leaguesTableView.reloadData()
@@ -91,9 +90,6 @@ class LeaguesVC: UIViewController {
             }
         }
         
-        
-        
-        // Do any additional setup after loading the view.
     }
     
     
@@ -132,17 +128,42 @@ extension LeaguesVC: UITableViewDataSource{
         leagueCell.setUrlDelegate = self
         
         leagueCell.fetchLeagueToFavDelegate = self
-        //leagueCell.favBtnOutlet.addTarget(self, action: <#T##Selector#>, for: <#T##UIControl.Event#>)
+        
+        leagueCell.favBtnOutlet.tag = indexPath.row
+        leagueCell.favBtnOutlet.addTarget(self, action: #selector(saveLeagueToFav(sender:)), for: .touchUpInside)
+        
+        
         leagueCell.configureCellImageLeague(strBadgeLeague: leagueByStrSport.strBadge)
         leagueCell.configureCell(nameLeague: leagueByStrSport.strLeague, nameSportLeague: leagueByStrSport.strSport)
         return leagueCell
     }
     
     
+    
+    @objc func saveLeagueToFav(sender: UIButton){
+        
+        print("indexPath \(sender.tag)")
+        
+        var index = sender.tag
+        
+        btnSelected = !btnSelected
+        
+        if btnSelected == true {
+            sender.setImage(UIImage(named: "touch.png"), for: .normal)
+        }else{
+            sender.setImage(UIImage(named: "touched.png"), for: .normal)
+            
+            DBManager.sharedInstance.add(appDelegate: appDelegate, nameLeague: arrayOfLeagueByStrSport[index].strLeague, nameSport: arrayOfLeagueByStrSport[index].strSport, imageSport: "strIamgeSport", strBadge: arrayOfLeagueByStrSport[index].strBadge, strYoutube: arrayOfLeagueByStrSport[index].strYoutube ?? "" )
+            
+        }
+    }
+    
 }
 
+
+
 extension LeaguesVC : CellGotoYoutubeBtnDelegate{
-       
+    
     func goToYoutubeBtnTapped(cell: LeaguesTableViewCell) {
         
         guard (self.leaguesTableView.indexPath(for: cell) != nil) else {return}
@@ -161,53 +182,49 @@ extension LeaguesVC : CellGotoYoutubeBtnDelegate{
     }
 }
 
+
+
+
 extension LeaguesVC: FetchLeagueForFav{
-
-       
-         func fetchLeagueToFav(league: LeagueFavorite) {
-             arrayOfFavLeague.append(league)
-            
-             print(arrayOfFavLeague.count)
-            
-            
-            
-//            singleTon.LeagueFavSingleton = arrayOfFavLeague
-//
-//            print(singleTon.sharedInstance.LeagueFavSingleton)
-//
-            if let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "FavoriteLeaguesVC") as? FavoriteLeaguesVC {
-                viewController.arrayOfFavLeague = arrayOfFavLeague
-                
-                
-                if let navigator = navigationController {
-
-                       navigator.pushViewController(viewController, animated: true)
-
-                    //tabBarController!.selectedIndex = 1
-                   }
-                
-//                present(viewController, animated: true, completion: nil)
-               }
-
-
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//            let vc: ViewController = storyboard.instantiateViewControllerWithIdentifier("ViewController") as! ViewController
-//
-//            let navViewController = myTabBar.selectedViewController as? UINavigationController
-//            navViewController?.pushViewController(vc, animated: true)
-            
-//            self.navigationController?.pushViewController(tabBar, animated: true)
-//            // when you want to open first index
-//              tabBar.selectedIndex = 0
-//              // when you want to open second index
-//              tabBar.selectedIndex = 1
-            
-//            passDelegate?.passFav(favLeague: arrayOfFavLeague)
-//            print(arrayOfFavLeague)
-                    
-         }
-        
     
+    
+    func fetchLeagueToFav(league: LeagueFavorite) {
+        
+        //            arrayOfFavLeague.append(league)
+        //
+        //             print(arrayOfFavLeague.count)
+        //
+        //            if let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "FavoriteLeaguesVC") as? FavoriteLeaguesVC {
+        //                viewController.arrayOfFavLeague = arrayOfFavLeague
+        //
+        //
+        //                if let navigator = navigationController {
+        //
+        //                       navigator.pushViewController(viewController, animated: true)
+        //
+        //                    tabBarController!.selectedIndex = 1
+        //                   }
+        //
+        //             present(viewController, animated: true, completion: nil)
+        //               }
+        
+        
+        //            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        //            let vc: ViewController = storyboard.instantiateViewControllerWithIdentifier("ViewController") as! ViewController
+        //
+        //            let navViewController = myTabBar.selectedViewController as? UINavigationController
+        //            navViewController?.pushViewController(vc, animated: true)
+        
+        //            self.navigationController?.pushViewController(tabBar, animated: true)
+        //            // when you want to open first index
+        //              tabBar.selectedIndex = 0
+        //              // when you want to open second index
+        //              tabBar.selectedIndex = 1
+        
+        //            passDelegate?.passFav(favLeague: arrayOfFavLeague)
+        //            print(arrayOfFavLeague)
+        
+    }
     
 }
 
@@ -218,7 +235,7 @@ extension LeaguesVC: UITableViewDelegate{
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-       // "goToInsta"
+        // "goToInsta"
         
         if segue.identifier == "goToDetailsVC"{
             if let indexPath = leaguesTableView.indexPathForSelectedRow {
@@ -230,7 +247,7 @@ extension LeaguesVC: UITableViewDelegate{
                 destVC.leagueByStrSportName = arrayOfLeagueByStrSport[indexPath.row].strLeague
                 destVC.idLeagueByStrSport = arrayOfLeagueByStrSport[indexPath.row].idLeague
                 
-                destVC.idUpcomingEventLeague =  idUpComming[indexPath.row]
+                //destVC.idUpcomingEventLeague =  idUpComming[indexPath.row]
                 
                 
             }
@@ -242,13 +259,13 @@ extension LeaguesVC: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-//        let vc = storyboard?.instantiateViewController(withIdentifier: "LeaguesDetailsVC") as! LeaguesDetailsVC
-//
-//            vc.idUpcomingEventLeague = idUpComming[indexPath.row]
-//
-//            self.navigationController?.pushViewController(vc, animated: true)
-//
-//
+        //        let vc = storyboard?.instantiateViewController(withIdentifier: "LeaguesDetailsVC") as! LeaguesDetailsVC
+        //
+        //            vc.idUpcomingEventLeague = idUpComming[indexPath.row]
+        //
+        //            self.navigationController?.pushViewController(vc, animated: true)
+        //
+        //
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

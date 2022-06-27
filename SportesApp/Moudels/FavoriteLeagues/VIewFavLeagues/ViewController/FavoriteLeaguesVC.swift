@@ -8,6 +8,8 @@
 
 import UIKit
 
+import CoreData
+
 class FavoriteLeaguesVC: UIViewController {
     
     
@@ -15,43 +17,52 @@ class FavoriteLeaguesVC: UIViewController {
         didSet{
             favoriteLeaguesTableV.dataSource = self
             favoriteLeaguesTableV.delegate = self
+            favoriteLeaguesTableV.reloadData()
         }
     }
     
     
     var arrayOfFavLeague: [LeagueFavorite]  = []
+    
+    var favLeagueFromData: [LeaguesFav] = []
+    
     var leguefav : String = ""
-
+    
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //favoriteLeaguesTableV.reloadData()
+        
+        favLeagueFromData =  DBManager.sharedInstance.fetchLeague(appDelegate: appDelegate)
         
         print(leguefav)
         
         
-        favoriteLeaguesTableV.reloadData()
+        
         
         
         // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        // favoriteLeaguesTableV.reloadData()
         
-        favoriteLeaguesTableV.reloadData()
     }
     
     
     @IBAction func addFavoriteLeagueBtn(_ sender: Any) {
         
-          let vc = storyboard?.instantiateViewController(withIdentifier: "LeaguesVC") as! LeaguesVC
-           //   vc.passDelegate = self
-              present(vc, animated: true, completion: nil)
-         //self.navigationController?.pushViewController(vc, animated: true)
-              
-          }
+        let vc = storyboard?.instantiateViewController(withIdentifier: "LeaguesVC") as! LeaguesVC
+        //   vc.passDelegate = self
+        present(vc, animated: true, completion: nil)
+        //self.navigationController?.pushViewController(vc, animated: true)
+        
     }
-    
+}
+
 
 
 
@@ -59,7 +70,7 @@ class FavoriteLeaguesVC: UIViewController {
 extension FavoriteLeaguesVC: UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return arrayOfFavLeague.count
+        return favLeagueFromData.count
         
     }
     
@@ -71,27 +82,85 @@ extension FavoriteLeaguesVC: UITableViewDataSource{
         
         let favoriteLeagueCell = tableView.dequeueReusableCell(withIdentifier: "FavoriteLeaguesCell", for: indexPath) as! FavoriteLeaguesCell
         
-        print(arrayOfFavLeague)
+        print(" fav league: \(favLeagueFromData)")
         
         
-        let favLeagueDetails = arrayOfFavLeague[indexPath.row]
+        let favLeagueDetails = favLeagueFromData[indexPath.row]
         
         favoriteLeagueCell.cellForFavLeague(nameLeague: favLeagueDetails.strLeague ?? "", nameSport: favLeagueDetails.strSport ?? "", imageLeague: favLeagueDetails.strBadge ?? "")
+        
+        favoriteLeagueCell.UnFavBtnOutlet.tag = indexPath.row
+        
+        favoriteLeagueCell.UnFavBtnOutlet.addTarget(self, action: #selector(removeLeagueFromFav(sender:)), for: .touchUpInside)
         
         return favoriteLeagueCell
     }
     
+    @objc func removeLeagueFromFav(sender: UIButton){
+        
+        sender.setImage(UIImage(named: "touch.png"), for: .normal)
+        
+         DBManager.sharedInstance.deleteLeague(appDelegate: appDelegate, itemIndex: sender.tag)
+        
+        self.favoriteLeaguesTableV.reloadData()
+    }
     
 }
 
+
+
+
 extension FavoriteLeaguesVC: UITableViewDelegate{
     
+    
+     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+          if editingStyle == .delete {
+              // Delete the row from the data
+//favoriteLeaguesTableV.beginUpdates()
+           // arrayOfFavLeague.remove(at: indexPath.row)
+              DBManager.sharedInstance.deleteLeague(appDelegate: appDelegate, itemIndex: indexPath.row)
+              // Delete the row from the table itself
+              favoriteLeaguesTableV.deleteRows(at: [indexPath], with: .fade)
+            //favoriteLeaguesTableV.endUpdates()
+          }
+      }
+    
+    
+    
+//
+//   func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool
+//    {
+//         return true
+//    }
+//
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath)
+//    {
+//        if editingStyle == .delete
+//        {
+//            self.favoriteLeaguesTableV.beginUpdates()
+//            DBManager.sharedInstance.deleteLeague(appDelegate: appDelegate, itemIndex: indexPath.row)
+//
+//            self.favoriteLeaguesTableV.deleteRows(at: [IndexPath](), with: .fade)
+//         //   arrayOfFavLeague.remove(at: indexPath.row)
+//            self.favoriteLeaguesTableV.endUpdates()
+//        }
+//    }
+ 
 }
 
 extension FavoriteLeaguesVC: UITabBarDelegate{
     
+    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        switch item.tag{
+        case 1: //code here
+            
+            self.favoriteLeaguesTableV.reloadData()
+            
+        default: break
+        }
+    }
     
-
+    
 }
 
 //

@@ -53,11 +53,13 @@ class LeaguesDetailsVC: UIViewController {
     
     var imageAwayTeam: String?
     
-  
+    
     
     let viewModelLeagueDetails = ViewModelLeaguesDetails()
     
     var idUpcomingEventLeague: String?
+    
+    var indexOfImage = 0
     
     
     override func viewDidLoad() {
@@ -85,7 +87,7 @@ class LeaguesDetailsVC: UIViewController {
                 print(error.localizedDescription)
             }
         }
-
+        
         
         
         
@@ -218,17 +220,18 @@ extension LeaguesDetailsVC: UICollectionViewDataSource{
         
         let teamCell = collectionView.dequeueReusableCell(withReuseIdentifier: "AllTeamsCVCell", for: indexPath) as! AllTeamsCVCell
         
-        teamCell.imageTeam.isUserInteractionEnabled = true
-        teamCell.imageTeam.tag = indexPath.row
+        if collectionView == allTeamsCV{
+            teamCell.imageTeam.tag = indexPath.item
+           // indexOfImage =  teamCell.imageTeam.tag
+            print("index path = \(indexOfImage)")
+        }
         
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
-        tapGestureRecognizer.numberOfTapsRequired = 1 
-        teamCell.addGestureRecognizer(tapGestureRecognizer)
-        
-        //        imageView.isUserInteractionEnabled = true
-        //            imageView.addGestureRecognizer(tapGestureRecognizer)
-        //
-        
+//        teamCell.imageTeam.isUserInteractionEnabled = true
+//
+//        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:index:)))
+//        tapGestureRecognizer.numberOfTapsRequired = 1
+//        teamCell.addGestureRecognizer(tapGestureRecognizer)
+//
         
         teamCell.configureCell(imageSport: arrayOfTeam[indexPath.row].strTeamBadge, nameSport: arrayOfTeam[indexPath.row].strTeam)
         
@@ -236,24 +239,20 @@ extension LeaguesDetailsVC: UICollectionViewDataSource{
         return teamCell
     }
     
-    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
+    
+    
+    /*@objc*/ func imageTapped(tapGestureRecognizer: UITapGestureRecognizer,index:Int)
     {
-        
         
         let tappedImage = tapGestureRecognizer.view as? UIImageView
         
-        
-        
-        
         if let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "TeamDeatailsVC") as? TeamDeatailsVC {
             
+            tappedImage?.tag = index
             
-            
-            viewController.team = arrayOfTeam[6]
-            
+            viewController.team = arrayOfTeam[index]
             
             if let navigator = navigationController {
-                
                 
                 navigator.pushViewController(viewController, animated: true)
                 
@@ -261,27 +260,21 @@ extension LeaguesDetailsVC: UICollectionViewDataSource{
             
         }
         
-        
-        
-        
-        
-        
-        // let imgView = tapGestureRecognizer as! UIImageView
-        
-        
-        
         print("TappedImage")
         
         // "goToInsta"
         
-        
-        
-        
-        
     }
 }
+
 extension LeaguesDetailsVC: UICollectionViewDelegate{
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        if collectionView == allTeamsCV{
+            print("indexPdth of teams \(indexPath.item)")
+            indexOfImage = indexPath.item
+            imageTapped(tapGestureRecognizer: UITapGestureRecognizer(), index: indexPath.item)
+        }
         
     }
 }

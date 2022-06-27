@@ -36,14 +36,11 @@ extension DBManager{
         }
     }
     
-    func fetchMovies(appDelegate: AppDelegate) -> [LeaguesFav]{
+    func fetchLeague(appDelegate: AppDelegate) -> [LeaguesFav]{
         
         var fetchLeagues: [LeaguesFav] = []
         let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "LeaguesFav")
-        
-//        let predicate = NSPredicate(format: "favLeagueFromData StrLeague: == %@", "")
-//        fetchRequest.predicate = predicate
         
         do{
             fetchLeagues = try managedContext.fetch(fetchRequest) as! [LeaguesFav]
@@ -51,9 +48,53 @@ extension DBManager{
             print("Error in saving")
             print(error.localizedDescription)
         }
-
+        
         return fetchLeagues
     }
+    
+    func deleteLeague(appDelegate: AppDelegate, itemIndex:Int){
+        
+        
+        /*
+         let appDel:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+         let context:NSManagedObjectContext = appDel.managedObjectContext
+         
+         let index = sender.tag
+         
+         context.deleteObject(people[index] as NSManagedObject)
+         people.removeAtIndex(index)
+         
+         let _ : NSError! = nil
+         do {
+         try context.save()
+         self.tableView.reloadData()
+         } catch {
+         print("error : \(error)")
+         }
+         }
+         */
+        
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: "LeaguesFav")
+        
+        //let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            let leagues = try managedContext.fetch(fetchRequest)
+            
+          //  if let leagues = leagues{
+                managedContext.delete(leagues[itemIndex])
+                
+          //  }
+            try managedContext.save()
+        } catch let error as NSError {
+            print(error.localizedDescription)
+        }
+    }
 }
+
+
+
 
 
